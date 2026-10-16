@@ -1,0 +1,14 @@
+{
+  "name": "exam-reviewer-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Turn an exam questionnaire and answer key into a printable reviewer.",
+  "scripts": { "start": "node --env-file-if-exists=.env server.js", "dev": "node --env-file-if-exists=.env --watch server.js" },
+  "dependencies": {
+    "express": "^5.1.0",
+    "mammoth": "^1.9.1",
+    "multer": "^2.0.2",
+    "jsonrepair": "^3.13.0",
+    "pdf-parse": "^1.1.1"
+  }
+}

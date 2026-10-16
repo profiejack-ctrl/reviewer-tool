@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITE 1 - Web Development | Prelim Exam Study Notes</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#312e81',
+                            900: '#1e1b4b',
+                        },
+                        highlight: {
+                            text: '#92400e', // Amber gold matching output spec
+                            bg: '#fef3c7',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        /* Highlighted Key Words Styling (Exact match to screenshot) */
+        .kw-highlight {
+            color: #92400e;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        /* Active recall mode style - turns highlights into interactive blanks */
+        body.active-recall .kw-highlight {
+            background-color: #cbd5e1;
+            color: transparent;
+            border-radius: 4px;
+            padding: 0 6px;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        body.active-recall .kw-highlight:hover,
+        body.active-recall .kw-highlight.revealed {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Yellow Left Callout Box (Exact match to screenshot) */
+        .key-callout {
+            border-left: 3.5px solid #f59e0b;
+            padding-left: 0.75rem;
+            margin-top: 0.75rem;
+            font-size: 0.925rem;
+            color: #374151;
+        }
+
+        .key-callout strong {
+            color: #854d0e;
+        }
+
+        /* Reviewer Card Custom Left Border */
+        .reviewer-card {
+            border-left: 5px solid #4f46e5;
+            box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .reviewer-card:hover {
+            box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Print formatting stylesheet */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+            }
+            .reviewer-card {
+                break-inside: avoid;
+                box-shadow: none !important;
+                border: 1px solid #e5e7eb !important;
+                border-left: 5px solid #4f46e5 !important;
+            }
+            .kw-highlight {
+                color: #854d0e !important;
+                background: transparent !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-16">
+
+    <!-- Top Action Navigation Bar (No Print) -->
+    <header class="no-print bg-white border-b border-gray-200 sticky top-0 z-30 shadow-xs">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-2">
+                <span class="bg-brand-600 text-white p-1.5 rounded-lg flex items-center justify-center">
+                    <i data-lucide="book-open" class="w-5 h-5"></i>
+                </span>
+                <div>
+                    <span class="font-bold text-gray-800 text-base sm:text-lg block leading-tight">Instructor Reviewer Studio</span>
+                    <span class="text-xs text-gray-500 font-medium">Bestlink College of the Philippines</span>
+                </div>
+            </div>
+
+            <!-- Utilities and View Modes -->
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Search Box -->
+                <div class="relative">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i>
+                    <input type="text" id="searchInput" oninput="filterCards()" placeholder="Search topics or terms..." 
+                        class="pl-9 pr-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:outline-none w-44 sm:w-52">
+                </div>
+
+                <!-- Recall Mode Toggle Button -->
+                <button onclick="toggleActiveRecall()" id="recallBtn" title="Hide keywords to test memory" 
+                    class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 flex items-center gap-1.5 transition">
+                    <i data-lucide="eye-off" class="w-4 h-4"></i>
+                    <span>Active Recall</span>
+                </button>
+
+                <!-- Add / Convert Question Modal Button -->
+                <button onclick="openModal()" 
+                    class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-1.5 transition shadow-xs">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Add Q&A</span>
+                </button>
+
+                <!-- Print Button -->
+                <button onclick="window.print()" 
+                    class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 flex items-center gap-1.5 transition">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>Print PDF</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-4xl mx-auto px-4 pt-8">
+
+        <!-- Course Header Section (Matches Screenshot Layout) -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-brand-800 tracking-tight" id="courseCodeTitle">
+                ITE 1 – Web Development
+            </h1>
+            <p class="text-gray-500 font-medium text-lg mt-2" id="examSubTitle">
+                Prelim Exam Study Notes
+            </p>
+            <p class="text-xs text-gray-400 font-medium mt-1">
+                College of Computing Studies • First Semester A.Y. 2026-2027
+            </p>
+            <!-- Blue Accent Horizontal Line (Exact match to screenshot) -->
+            <div class="w-full h-1 bg-brand-600 mt-5 rounded-full"></div>
+        </div>
+
+        <!-- Instructor Helper Toolbar / Filter Pills -->
+        <div class="no-print mb-6 flex flex-wrap items-center justify-between gap-3 bg-indigo-50/60 p-3 rounded-xl border border-indigo-100">
+            <div class="flex items-center gap-2 text-xs font-medium text-gray-600">
+                <i data-lucide="filter" class="w-4 h-4 text-brand-600"></i>
+                <span>Filter Module:</span>
+                <select id="topicFilter" onchange="filterCards()" class="bg-white border border-gray-300 text-gray-700 text-xs rounded-lg px-2.5 py-1 focus:ring-brand-600">
+                    <option value="ALL">All Modules (50 Questions)</option>
+                    <option value="Web Fundamentals & Architecture">1. Fundamentals & Architecture</option>
+                    <option value="HTML Elements, Tags & Attributes">2. HTML Core & Attributes</option>
+                    <option value="Text Formatting, Entities & Lists">3. Formatting, Entities & Lists</option>
+                    <option value="Tables, CSS & Styling Methods">4. Tables & CSS Styling</option>
+                </select>
+            </div>
+            <div id="statsBadge" class="text-xs font-semibold text-brand-800 bg-white px-3 py-1 rounded-full border border-indigo-100 shadow-2xs">
+                Showing all 50 study cards
+            </div>
+        </div>
+
+        <!-- Reviewer Cards Container -->
+        <div id="reviewerCardsContainer" class="space-y-8">
+
+            <!-- MODULE 1: Web Fundamentals, Architecture & History -->
+            <section class="topic-section" data-topic="Web Fundamentals & Architecture">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
+                    <span>🌐</span> <span>Web Development Fundamentals & Architecture</span>
+                </h2>
+
+                <div class="space-y-4">
+                    <!-- Q1 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="1">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Webpage Structure Technology</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The technology responsible for providing the core structure and skeleton of a webpage is <span class="kw-highlight">HTML (Hypertext Markup Language)</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> HTML = Structure and skeleton of webpages
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="2">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Primary Focus of CSS</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            In client-side frontend development, the primary focus of CSS is <span class="kw-highlight">Styling, Layout, and visual design</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> CSS = Styling, layout, and visual presentation
+                        </div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="3">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Client-Side Interactivity Language</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The client-side language used to implement behavior, interactivity, and dynamic logic on a page is <span class="kw-highlight">JavaScript</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> JavaScript = Interactivity, behavior, and dynamic logic
+                        </div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="4">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Server-Side Database Management System</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            An example of a categorized server-side (backend) database management system is <span class="kw-highlight">MySQL</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Backend DBMS = MySQL
+                        </div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="5">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Role of an API</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The role of an Application Programming Interface (API) is <span class="kw-highlight">to act as a bridge or messenger that allows the frontend and backend to talk to each other</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> API = Bridge/messenger connecting frontend and backend
+                        </div>
+                    </div>
+
+                    <!-- Q6 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="6">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Web Data Transmission Protocol</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The protocol referring to the rule sets used to securely transmit data across the web between the client and server is <span class="kw-highlight">HTTPS</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> HTTPS = Data transmission rules protocol
+                        </div>
+                    </div>
+
+                    <!-- Q7 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="7">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Browser Rendering Process</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The process of a web browser turning code into a viewable webpage is termed <span class="kw-highlight">Rendering</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Browser parsing code into UI = Rendering
+                        </div>
+                    </div>
+
+                    <!-- Q8 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="8">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Full-Stack Developer Definition</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            A Full-Stack Developer is best defined as <span class="kw-highlight">a versatile engineer who can work on both the frontend (client-side) and backend (server-side) portions of an application</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Full-Stack = Handles both Frontend + Backend
+                        </div>
+                    </div>
+
+                    <!-- Q9 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="9">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Iconic Text Editor</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            An iconic lightweight default text editor used for writing code is <span class="kw-highlight">Notepad</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Basic text editor tool = Notepad
+                        </div>
+                    </div>
+
+                    <!-- Q10 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="10">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Cross-Browser Consistency</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            A core part of a developer's job is ensuring a website works consistently across different <span class="kw-highlight">Rendering Engines</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Cross-browser compatibility = Across different rendering engines
+                        </div>
+                    </div>
+
+                    <!-- Q41 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="41">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">HTML Acronym Definition</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The acronym HTML stands specifically for <span class="kw-highlight">Hypertext Markup Language</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> HTML = Hypertext Markup Language
+                        </div>
+                    </div>
+
+                    <!-- Q42 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="42">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Inventor of WWW and HTML</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The visionary who invented the World Wide Web and introduced HTML is <span class="kw-highlight">Tim Berners-Lee</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Creator of WWW/HTML = Tim Berners-Lee
+                        </div>
+                    </div>
+
+                    <!-- Q43 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="43">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">WWW Acronym</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The acronym WWW stands for <span class="kw-highlight">World Wide Web</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> WWW = World Wide Web
+                        </div>
+                    </div>
+
+                    <!-- Q44 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="44">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">HTML Official Release Year</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            HTML was officially released in the year <span class="kw-highlight">1991</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> HTML Release Year = 1991
+                        </div>
+                    </div>
+
+                    <!-- Q45 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="45">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Interconnected Networks Infrastructure</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            A global group of interconnected computer networks combined with hardware and infrastructure is called the <span class="kw-highlight">Internet</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Interconnected networks = Internet
+                        </div>
+                    </div>
+
+                    <!-- Q46 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="46">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Rendering Engine Environment</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            An application containing a browser rendering engine capable of displaying web documents is <span class="kw-highlight">Chrome</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Browser containing rendering engine = Chrome
+                        </div>
+                    </div>
+
+                    <!-- Q47 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="47">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Static Website Concept</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            A type of website that displays fixed content and identical output every time a user visits is a <span class="kw-highlight">Static Website</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Fixed unchanging content = Static Website
+                        </div>
+                    </div>
+
+                    <!-- Q48 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="48">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Dynamic Website Concept</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            A type of website where content updates dynamically according to user behavior or interactions is a <span class="kw-highlight">Dynamic Website</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Interactive/changing content = Dynamic Website
+                        </div>
+                    </div>
+
+                    <!-- Q49 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="49">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">ARPANET Acronym</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The acronym ARPANET stands for <span class="kw-highlight">Advanced Research Projects Agency Network</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> ARPANET = Advanced Research Projects Agency Network
+                        </div>
+                    </div>
+
+                    <!-- Q50 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="50">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Website Definition</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            A collection of related web pages grouped together under a single domain name and shared publicly on the Internet is known as a <span class="kw-highlight">Website</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Group of related pages under 1 domain = Website
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MODULE 2: HTML Core Concepts, Elements & Structure -->
+            <section class="topic-section" data-topic="HTML Elements, Tags & Attributes">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
+                    <span>🏷️</span> <span>HTML Core Concepts, Elements & Structure</span>
+                </h2>
+
+                <div class="space-y-4">
+                    <!-- Q11 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="11">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Meaning of "Hypertext"</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The "Hypertext" portion of Hypertext Markup Language specifically refers to <span class="kw-highlight">Hyperlinks that connect webpages to one another</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Hypertext = Clickable hyperlinks connecting web pages
+                        </div>
+                    </div>
+
+                    <!-- Q12 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="12">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">HTML Tag Definition</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            A command enclosed in angle brackets (&lt; &gt;) that specifies where an instruction starts and ends is defined as a <span class="kw-highlight">Tag</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Command in angle brackets &lt; &gt; = Tag
+                        </div>
+                    </div>
+
+                    <!-- Q13 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="13">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Complete HTML Element Example</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            A complete HTML element consists of an opening tag, content, and a closing tag, such as <span class="kw-highlight">&lt;p&gt; This is paragraph &lt;/p&gt;</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Complete element = &lt;p&gt; Content &lt;/p&gt;
+                        </div>
+                    </div>
+
+                    <!-- Q14 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="14">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">HTML Attribute Identification</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            In the code snippet <code class="bg-gray-100 text-xs px-1.5 py-0.5 rounded">&lt;a href="https://google.com"&gt;</code>, the term "href" is classified as an <span class="kw-highlight">Attribute</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Extra specifier inside opening tag = Attribute
+                        </div>
+                    </div>
+
+                    <!-- Q15 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="15">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Empty Element (Void Tag)</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            An element explicitly classified as an empty element (void tag) that requires no closing tag is <span class="kw-highlight">&lt;img&gt;</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Void / self-closing tag = &lt;img&gt;
+                        </div>
+                    </div>
+
+                    <!-- Q16 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="16">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Root HTML Element</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The tag that acts as the root element enclosing all other elements on the web page is <span class="kw-highlight">&lt;html&gt;</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Top root wrapper tag = &lt;html&gt;
+                        </div>
+                    </div>
+
+                    <!-- Q17 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="17">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Purpose of DOCTYPE Declaration</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The primary purpose of the <code class="bg-gray-100 text-xs px-1 py-0.5 rounded">&lt;!DOCTYPE html&gt;</code> declaration is to <span class="kw-highlight">Tell the browser that the document is written in modern HTML5</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> &lt;!DOCTYPE html&gt; = Informs browser document is HTML5
+                        </div>
+                    </div>
+
+                    <!-- Q18 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="18">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Smallest Heading Tier</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The heading tag that renders the structurally smallest heading tier is <span class="kw-highlight">&lt;h6&gt;</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Smallest heading = &lt;h6&gt; (Largest is &lt;h1&gt;)
+                        </div>
+                    </div>
+
+                    <!-- Q19 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="19">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">HTML File Extension</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            When creating an HTML document source file on your computer, the required file extension is <span class="kw-highlight">.html</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> HTML file extension = .html
+                        </div>
+                    </div>
+
+                    <!-- Q20 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="20">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">VS Code HTML Boilerplate Shortcut</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            In Visual Studio Code, the shortcut character typed to auto-generate the basic HTML template is <span class="kw-highlight">! (Exclamation mark)</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> VS Code HTML template shortcut = ! + Tab/Enter
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MODULE 3: Text Formatting, Entities & Lists -->
+            <section class="topic-section" data-topic="Text Formatting, Entities & Lists">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
+                    <span>📜</span> <span>Text Formatting, Entities & Lists</span>
+                </h2>
+
+                <div class="space-y-4">
+                    <!-- Q21 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="21">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Whitespace Collapsing Behavior</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            When multiple consecutive spaces in HTML source code are collapsed by browsers into a single space, it is called <span class="kw-highlight">Blank Space collapsing</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Multiple spaces collapsed into 1 space = Blank Space collapsing
+                        </div>
+                    </div>
+
+                    <!-- Q22 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="22">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Preserving Exact Whitespace</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            To preserve blank spaces and line breaks exactly as typed in your HTML code, you must use the <span class="kw-highlight">&lt;pre&gt; tag</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Preserves exact formatting & spaces = &lt;pre&gt; (Preformatted)
+                        </div>
+                    </div>
+
+                    <!-- Q23 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="23">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">HTML Comment Syntax</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The correct syntax for writing comments inside an HTML structure is <span class="kw-highlight">&lt;!-- comment --&gt;</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> HTML comment = &lt;!-- comment --&gt;
+                        </div>
+                    </div>
+
+                    <!-- Q24 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="24">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Non-Breaking Space Entity</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The special HTML character entity used to insert a non-breaking space on a webpage is <span class="kw-highlight">&amp;nbsp;</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Non-breaking space = &amp;nbsp;
+                        </div>
+                    </div>
+
+                    <!-- Q25 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="25">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Less-Than Symbol Entity</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The HTML entity code used to safely render the less-than (&lt;) character is <span class="kw-highlight">&amp;lt;</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Less-than (&lt;) symbol = &amp;lt;
+                        </div>
+                    </div>
+
+                    <!-- Q26 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="26">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Registered Trademark Entity</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            To display a registered trademark symbol (®) on a webpage, you use the HTML entity code <span class="kw-highlight">&amp;reg;</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Registered trademark (®) = &amp;reg;
+                        </div>
+                    </div>
+
+                    <!-- Q27 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="27">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Text Highlighting Tag</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The semantic tag specifically designed for visual highlighted text (yellow marker style) is <span class="kw-highlight">&lt;mark&gt;</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Highlighted text tag = &lt;mark&gt;
+                        </div>
+                    </div>
+
+                    <!-- Q28 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="28">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Description List Elements</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The set of HTML tags utilized to construct a Description List consists of <span class="kw-highlight">&lt;dl&gt;, &lt;dt&gt;, and &lt;dd&gt;</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Description list set = &lt;dl&gt; (list), &lt;dt&gt; (term), &lt;dd&gt; (definition)
+                        </div>
+                    </div>
+
+                    <!-- Q29 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="29">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Lowercase Roman Numerals in Lists</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            When customizing an Ordered List (&lt;ol&gt;), setting <span class="kw-highlight">type="i"</span> changes numbering to lowercase Roman numerals.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Lowercase Roman list numbering = type="i"
+                        </div>
+                    </div>
+
+                    <!-- Q30 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="30">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Purpose of the Start Attribute</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The specific purpose of applying the <code class="bg-gray-100 text-xs px-1 py-0.5 rounded">start</code> attribute to an ordered list is to <span class="kw-highlight">change the starting numerical value of the list</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> &lt;ol start="5"&gt; = Changes starting number of list
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MODULE 4: Tables, CSS & Styling Methods -->
+            <section class="topic-section" data-topic="Tables, CSS & Styling Methods">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
+                    <span>📊</span> <span>Tables, CSS & Styling Methods</span>
+                </h2>
+
+                <div class="space-y-4">
+                    <!-- Q31 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="31">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">HTML Table Caption Tag</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The specific purpose of the <code class="bg-gray-100 text-xs px-1 py-0.5 rounded">&lt;caption&gt;</code> tag in an HTML table is to <span class="kw-highlight">add a title or descriptive caption to the table</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> &lt;caption&gt; = Adds table title
+                        </div>
+                    </div>
+
+                    <!-- Q32 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="32">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Merging Table Columns</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The attribute used to merge table cells horizontally across multiple columns is <span class="kw-highlight">colspan</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Merge columns horizontally = colspan
+                        </div>
+                    </div>
+
+                    <!-- Q33 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="33">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Inline CSS Definition</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The method that involves writing CSS rules directly inside an individual HTML tag's style attribute is <span class="kw-highlight">Inline CSS</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Style directly inside HTML tag = Inline CSS
+                        </div>
+                    </div>
+
+                    <!-- Q34 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="34">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">CSS Acronym Definition</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The acronym CSS stands for <span class="kw-highlight">Cascading Style Sheet</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> CSS = Cascading Style Sheet
+                        </div>
+                    </div>
+
+                    <!-- Q35 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="35">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Standard Table Data Cell Tag</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The HTML tag used to create a standard data cell in a table is <span class="kw-highlight">&lt;td&gt;</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Table data cell = &lt;td&gt;
+                        </div>
+                    </div>
+
+                    <!-- Q36 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="36">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Internal Element Spacing</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            To create space inside an element between its content and its border, you apply the CSS property <span class="kw-highlight">padding</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Space inside border = padding (Outside border = margin)
+                        </div>
+                    </div>
+
+                    <!-- Q37 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="37">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Internal CSS Placement</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            Internal CSS rules must be placed in the HTML document inside the <span class="kw-highlight">&lt;style&gt; tag within the &lt;head&gt; section</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Internal CSS location = &lt;style&gt; inside &lt;head&gt;
+                        </div>
+                    </div>
+
+                    <!-- Q38 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="38">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Merging Table Rows</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The attribute used to make a table cell span multiple rows vertically is <span class="kw-highlight">rowspan</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Merge rows vertically = rowspan
+                        </div>
+                    </div>
+
+                    <!-- Q39 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="39">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Correct CSS Syntax Structure</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The proper syntax format for writing CSS rules is <span class="kw-highlight">SELECTOR { property: value }</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> CSS Syntax = SELECTOR { property: value }
+                        </div>
+                    </div>
+
+                    <!-- Q40 -->
+                    <div class="reviewer-card bg-white rounded-xl p-5 border border-gray-200" data-card-id="40">
+                        <h3 class="text-lg font-bold text-brand-800 mb-2">Background Color CSS Property</h3>
+                        <p class="text-gray-800 text-base leading-relaxed">
+                            The CSS property used to change the background color of an element is <span class="kw-highlight">background-color</span>.
+                        </p>
+                        <div class="key-callout">
+                            <strong>Key:</strong> Background color property = background-color
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- No search results placeholder -->
+        <div id="noResults" class="hidden text-center py-12 bg-white rounded-xl border border-gray-200 mt-6 shadow-2xs">
+            <i data-lucide="search-x" class="w-12 h-12 text-gray-400 mx-auto mb-3"></i>
+            <p class="text-gray-600 font-medium text-base">No matching exam study notes found.</p>
+            <p class="text-gray-400 text-sm mt-1">Try tweaking your search term or selecting 'All Modules'.</p>
+        </div>
+
+    </main>
+
+    <!-- Instructor Assistant Q&A Converter Modal -->
+    <div id="convertModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-brand-800 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="wand-2" class="w-5 h-5 text-amber-300"></i>
+                    <h3 class="font-bold text-lg">Exam Question Converter</h3>
+                </div>
+                <button onclick="closeModal()" class="text-gray-300 hover:text-white text-2xl font-bold leading-none">&times;</button>
+            </div>
+
+            <!-- Modal Content Form -->
+            <div class="p-6 overflow-y-auto space-y-4 text-sm">
+                <p class="text-gray-600">
+                    Input a raw exam question and key answer to quickly format and append a new study card to this reviewer!
+                </p>
+
+                <!-- Section / Category Input -->
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Module / Topic</label>
+                    <input type="text" id="inputTopic" placeholder="e.g. Web Fundamentals & Architecture" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                </div>
+
+                <!-- Concept / Card Title -->
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Concept Title</label>
+                    <input type="text" id="inputTitle" placeholder="e.g. Responsive Web Design Definition" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                </div>
+
+                <!-- Revised Sentence Stem -->
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Revised Question Sentence Stem</label>
+                    <input type="text" id="inputSentence" placeholder="e.g. Designing websites that adapt fluidly to screen sizes is:" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                </div>
+
+                <!-- Highlighted Key Answer Phrase -->
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Answer / Key Phrase to Highlight</label>
+                    <input type="text" id="inputAnswer" placeholder="e.g. Responsive Web Design (RWD)" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                </div>
+
+                <!-- Key Memory Aid -->
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Memory Callout (Key: ...)</label>
+                    <input type="text" id="inputKeyNote" placeholder="e.g. RWD = Fluid layouts adapting across all device viewports" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-3 bg-gray-50 border-t border-gray-200 flex justify-end gap-2">
+                <button onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 rounded-lg">Cancel</button>
+                <button onclick="addNewCardFromInput()" class="px-4 py-2 text-sm font-semibold bg-brand-600 text-white rounded-lg hover:bg-brand-700 shadow-xs flex items-center gap-1.5">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Add to Reviewer
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Active Recall Toggle State
+        let activeRecall = false;
+
+        function toggleActiveRecall() {
+            activeRecall = !activeRecall;
+            document.body.classList.toggle('active-recall', activeRecall);
+            
+            const btn = document.getElementById('recallBtn');
+            if (activeRecall) {
+                btn.classList.add('bg-amber-100', 'border-amber-300', 'text-amber-900');
+                btn.classList.remove('bg-white', 'text-gray-700');
+                btn.querySelector('span').innerText = 'Hide Key Phrases (Active)';
+            } else {
+                btn.classList.remove('bg-amber-100', 'border-amber-300', 'text-amber-900');
+                btn.classList.add('bg-white', 'text-gray-700');
+                btn.querySelector('span').innerText = 'Active Recall';
+                
+                // Clear active revealed toggles
+                document.querySelectorAll('.kw-highlight.revealed').forEach(el => {
+                    el.classList.remove('revealed');
+                });
+            }
+        }
+
+        // Click listener for Active Recall keyword reveals
+        document.addEventListener('click', function(e) {
+            if (activeRecall && e.target.classList.contains('kw-highlight')) {
+                e.target.classList.toggle('revealed');
+            }
+        });
+
+        // Search and Topic Filtering System
+        function filterCards() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            const selectedTopic = document.getElementById('topicFilter').value;
+            const sections = document.querySelectorAll('.topic-section');
+            let totalVisibleCards = 0;
+
+            sections.forEach(section => {
+                const sectionTopic = section.getAttribute('data-topic');
+                const cards = section.querySelectorAll('.reviewer-card');
+                let visibleCardsInSection = 0;
+
+                const topicMatch = (selectedTopic === 'ALL' || selectedTopic === sectionTopic);
+
+                cards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    const matchesSearch = text.includes(searchQuery);
+
+                    if (topicMatch && matchesSearch) {
+                        card.style.display = 'block';
+                        visibleCardsInSection++;
+                        totalVisibleCards++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Toggle visibility of section headers
+                if (visibleCardsInSection > 0) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+
+            // Update visible stats counter
+            const statsBadge = document.getElementById('statsBadge');
+            statsBadge.innerText = `Showing ${totalVisibleCards} study card${totalVisibleCards === 1 ? '' : 's'}`;
+
+            // Show empty search state if needed
+            const noResults = document.getElementById('noResults');
+            if (totalVisibleCards === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
+        }
+
+        // Modal Handlers
+        function openModal() {
+            document.getElementById('convertModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('convertModal').classList.add('hidden');
+        }
+
+        // Add New Card Functionality
+        function addNewCardFromInput() {
+            const topic = document.getElementById('inputTopic').value.trim() || "Web Fundamentals & Architecture";
+            const title = document.getElementById('inputTitle').value.trim() || "General Concept";
+            const sentence = document.getElementById('inputSentence').value.trim() || "Concept statement:";
+            const answer = document.getElementById('inputAnswer').value.trim() || "Key answer phrase";
+            const keyNote = document.getElementById('inputKeyNote').value.trim() || "Key summary note";
+
+            // Locate or construct section
+            let targetSection = Array.from(document.querySelectorAll('.topic-section'))
+                .find(sec => sec.getAttribute('data-topic').toLowerCase() === topic.toLowerCase());
+
+            if (!targetSection) {
+                targetSection = document.createElement('section');
+                targetSection.className = 'topic-section';
+                targetSection.setAttribute('data-topic', topic);
+                targetSection.innerHTML = `
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
+                        <span>📌</span> <span>${topic}</span>
+                    </h2>
+                    <div class="space-y-4"></div>
+                `;
+                document.getElementById('reviewerCardsContainer').appendChild(targetSection);
+
+                // Add to filter dropdown
+                const filter = document.getElementById('topicFilter');
+                const opt = document.createElement('option');
+                opt.value = topic;
+                opt.textContent = topic;
+                filter.appendChild(opt);
+            }
+
+            const cardContainer = targetSection.querySelector('.space-y-4');
+
+            // Build card element matching exact layout
+            const cardElement = document.createElement('div');
+            cardElement.className = 'reviewer-card bg-white rounded-xl p-5 border border-gray-200';
+            cardElement.setAttribute('data-card-id', Date.now());
+            cardElement.innerHTML = `
+                <h3 class="text-lg font-bold text-brand-800 mb-2">${title}</h3>
+                <p class="text-gray-800 text-base leading-relaxed">
+                    ${sentence} <span class="kw-highlight">${answer}</span>.
+                </p>
+                <div class="key-callout">
+                    <strong>Key:</strong> ${keyNote}
+                </div>
+            `;
+
+            cardContainer.appendChild(cardElement);
+
+            // Re-initialize icons
+            lucide.createIcons();
+
+            // Reset modal form fields
+            document.getElementById('inputTitle').value = '';
+            document.getElementById('inputSentence').value = '';
+            document.getElementById('inputAnswer').value = '';
+            document.getElementById('inputKeyNote').value = '';
+
+            closeModal();
+            filterCards();
+        }
+    </script>
+</body>
+</html>
